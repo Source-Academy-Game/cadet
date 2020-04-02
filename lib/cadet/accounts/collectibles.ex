@@ -13,7 +13,13 @@ defmodule Cadet.Collectibles do
   def update_collectibles(pic_nickname, pic_name, user) do
     changeset =
     Ecto.Changeset.cast(user, %{collectibles: Map.put(user_collectibles(user), pic_nickname, pic_name)},[:collectibles])
-    Cadet.Repo.update!(changeset)
+    # really simple error handling action
+    with {:ok, _} <- Cadet.Repo.update!(changeset) do
+        {:ok, nil}
+    else
+      {:error, _} ->
+        {:error, {:internal_server_error, "Please try again later."}}
+    end
   end
 
   # should be idle since we are not going to delete students' collectibles
